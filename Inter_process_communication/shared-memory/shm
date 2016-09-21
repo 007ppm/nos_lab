@@ -1,0 +1,13 @@
+shmget()
+shm_id = shmget(
+               key_t     k,        /* the key for the segment         */
+               int       size,     /* the size of the segment         */
+               int       flag);    /* create/use flag                 */
+In the above definition, k is of type key_t or IPC_PRIVATE. It is the numeric key to be assigned to the returned shared memory segment. size is the size of the requested shared memory. The purpose of flag is to specify the way that the shared memory will be used. For our purpose, only the following two values are important:
+
+IPC_CREAT | 0666 for a server (i.e., creating and granting read and write access to the server)
+0666 for any client (i.e., granting read and write access to the client)
+Note that due to Unix's tradition, IPC_CREAT is correct and IPC_CREATE is not!!!
+
+If shmget() can successfully get the requested shared memory, its function value is a non-negative integer, the shared memory ID; otherwise, the function value is negative.
+
