@@ -1,0 +1,157 @@
+1) pipes: (unnamed pipe) 
+    They provide unidirectional flow of communication between processes within the same system.  
+    In other words, they are half-duplex, that is, data flows in only one direction. A pipe is created by invoking the pipe system call, which creates a pair of file descriptors.
+    One descriptor is for reading, another one is for writing.
+    This communication can happen only between (parent and child process) or  between (two threads in a single process) .
+    Two different unrelated processes can not communicate via pipe.
+    int fd[2] ;
+    pipe(fd) ; //Address of the integer array should be passed as arguement.
+                //This system call will write filedescriptor values in fd[0] nad fd[1].
+                //fd[0] is for reading.
+                //fd[1] is for writing. 
+                
+    We have mentioned like "This communication can happen only between (parent and child process) or  between (two threads in a single process) ."
+    And also we have mentioned like "Two different unrelated processes can not communicate via pipe."
+    you know why??
+    Bcoz, filedescriptor values we are creating using pipe call is unavailable for another process. 
+        It is available only for the threads created and chile process created using fork system call.
+        
+    Why we are calling pipe as unnamed pipe?
+    Bcoz, file descriptor has been created using pipe call. And file names we dont know. After execution of pipe call, those files will be created temporarily. While program stops executing,
+        those tempory files are deleted. Since we dont know the file names, it is called unnamed pipe. 
+        
+2) FIFO : (Named pipe) (First In, First Out)
+    One of the major disadvantage of pipes is that the they can not be accesed using their names by any other process other than child and the parent as they do not get listed in the directory tree. 
+    The work around for this porblem is to create a named pipe which is also called as a FIFO, which stands for First in First out, meaning the data that is written into the pipe first will be read out first always.
+    The fifos get listed in the directory tree and any process can access it using its name by providing the approproiate path.
+    fifo are created using the function mkfifo() which takes as arguments
+        1. The name of the fifo that has to be created
+        2. The permissions for the file.
+    Once the file is created, it needs to be opened using the system call open() and the data can be read and written from the file using read() and write system calls.
+    Another advantage of a fifo over the pipes is that fifo are bidirectoinal, that is the same fifo can be read from as well and written into.
+
+        For more info, refer http://tuxthink.blogspot.in/2012/02/inter-process-communication-using-named.html. It is good link. Example also given.
+    
+3) Shared Memory : 
+    It is faster than the other IPC mechanisms. It will make two process use of common memory address space. One process can write in the address space. Another one will read it.
+    Four steps for using shared memory: 
+        1) Fetching an identifier for the shared memory area - shmget (shared memory get)
+        2) Using the identifier to get the shared memory address - shmat (shared memory attach),
+            2.i) Make use of the memory by reading contents from it or writing contents on it. 
+        3) Detaching the shared memory area after use - shmdt (shared memory detach) and
+        4) Finally using the address to control accesses, permissions, receive information and destroy the shared memory area - shmctl (shared memory control). 
+        
+    shmget(key , size , flag ) ; 
+        key ==> normal integer assigned by developer, assigned by ftok() function, or the value can be IPC_PRIVATE.
+        Size ==> How many bytes you want 
+        flag ==> Permissions for accessing the shared memory
+        
+        If key is IPC_PRIVATE, then the particular process only can make use of that shared memory. No other process can make use of the shared memory resource.
+        IPC_PRIVATE value will be suitable for communication between parent and child process.
+        
+        flag values can be like, 
+        1. IPC_CREAT | 0666 (i.e., creating and granting read and write access to the particular process)
+        2. 0666 for a server (i.e., granting read and write access to the particular process) 
+        
+        So, the process creating shared memory should use the first option. And the processes making use of the shared memory should use the second option.
+        
+        All process must use the same key value for accessing the particular shared memory resource. 
+        
+    shmat(shmid , char *poniter , flags) ;
+        shmid ==> id returned by the shmget()
+        pointer ==> It is always NULL
+        flags ==> Nothing but readonly or writeonly or both read and write. Some of the possible values are, SHM_RDONLY, SHM_WONLY, SHM_RDWT.
+        
+        This function will return the base address space of the shared memory resource. Using the address space, we can write or read. 
+        
+    shmdt(address)  ;
+        address ==> It is the base address returned by shmat
+            System call shmdt( ) is used to detach a shared memory.
+            After a shared memory is detached, it cannot be used. 
+            However, it is still there and can be re-attached back to a process's address space, perhaps at a different address. 
+            To remove a shared memory, use shmctl( ).
+            
+    To remove a shared memory segment, use the following code: 
+        shmctl (shm_id, IPC_RMID, NULL);
+    where shm_id is the shared memory ID. 
+    IPC_RMID indicates this is a remove operation. 
+    Note that after the removal of a shared memory segment, if you want to use it again, you should use shmget( ) followed by shmat( ).
+    
+    
+4)  Message Queues : 
+
+5)    Mapped Memories:
+
+6)     Socket: 
+        All other IPC mechanism will provide IPC between two processes in a same system. Socket is only way to provide IPC between two process running in two different system.
+        TCP: (Server) 
+            Create socket using socket function
+            Bind the socket-id with local address
+            Listen the incoming connection. (Not a blocking call. It will just define how many incoming calls can be able to recieve and then it will return ) 
+            Accept the incoming connection (Blocking call. It will wait for incoming connections)
+            send and recv are the functions to exchange the data between processes.
+            close the socket-id
+            
+        TCP : (Client) 
+            Create socket using socket function
+            connect with server using connect function. ( Blocking call. It will wait till it gets response from server) 
+            send and recv are the functions to exchange the data between processes.
+            close the socket-id
+            
+        socket(family, type, protocol);
+            family : Specifies IPv4 or IPv6
+            type : SOCK_STREAM, DGRAM_STREAM
+                SOCK_STREAM is for TCP protocol
+                DGRAM_STREAM is for UDP protocol
+            protocol: Which protocol, TCP or UDP
+                If TCP means IPPROTO_TCP 
+                If UDP means IPPROTO_UDP
+                
+            Telling about family such as IPv4 or IPv6
+            Telling about in which stream we are going to exchange datas
+            Telling about using which protocol we are going to transmit datas
+            
+        bind(sockid, &addrport, size);
+            sockid : returned from socket function
+            addrport :  contains the info about PC like IPAddress os the System, in which port the process is running
+                struct sockaddr_in
+                {
+                    unsigned short sin_family; /* Internet protocol (AF_INET) */
+                    unsigned short sin_port; /* Address port (16 bits) */
+                    struct in_addrsin_addr; /* Internet address (32 bits) */
+                    char sin_zero[8]; /* Not used */
+                }
+            size : size of the addrport structure
+            
+        listen (sockid, queueLimit);
+            queueLimit: How many incoming connection the server want to listen.
+            
+        accept ( sockid , &clientAddrPort , &addrLen ) 
+            clientAddrPort: Contains the details about the PC from which connection request is coming
+            addrLen : size of the clientAddrPort
+            
+            This function will return the client sockid from which is connection request is coming.
+                So, we will get client sockid from this function. Further, to read from or write to socket, we can make use of this socket id to exchange data
+                
+        connect(sockid, &servAddr, addrlen);
+            servAddr : Contains the details about the PC to which connection request wants to be made
+            addrLen : size of the servAddr
+
+
+7)  List the system calls which are needed to create a socket communication between client and server program using TCP/IP protocol in C.
+Ans : System calls needed in Server : 
+    1)socket ==> to create and open a socket descriptor through which this server process is going to communicate with client process. 
+    2)bind  ==> to bind with particular port in your system. port number is of 2 bytes. So, port numbers can be upto 65,365. Bind call is must to inform to client that "i (server) am available in this port only.". 
+    3)listen ==> to make the port available or be ready for communication. In here, the backlog variable tells sockets how many incoming requests to accept. 
+    4)accept ==> to establish or accept the connection with client process. It is waiting system call. It will wait upto the reception of connection requests from client.
+    5)read ==> to read contents from the socket descriptor.
+    6)write ==> to write contents on the socket descriptor.
+    7)close ==> to close the socket descriptor. So, it will make the socket descriptor be available for some other process. 
+
+System cals needed in Client : 
+    1) socket  ==> same description as given in server process. 
+    2) connect ==> once socket is created, the client process needs to initiate the connection requests with server process to start communication. In this system call, client process will specify the IP address and port number where the server process resides. So, to start communication, the client process only must know about "In which IP address and in which port, server process is availble". This information, a client process must know.   
+    3) write ==> same description as given in server process.
+    4) read ==> same description as given in server process.
+    5) close ==> same description as given in server process.
+            
