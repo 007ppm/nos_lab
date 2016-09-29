@@ -1,3 +1,7 @@
+#shmget(key, MAXSIZE, IPC_CREAT | 0666) ;
+#shmat(shmid, NULL, 0)
+#shmdt()
+
 shmget()
 shm_id = shmget(
                key_t     k,        /* the key for the segment         */
@@ -11,3 +15,10 @@ Note that due to Unix's tradition, IPC_CREAT is correct and IPC_CREATE is not!!!
 
 If shmget() can successfully get the requested shared memory, its function value is a non-negative integer, the shared memory ID; otherwise, the function value is negative.
 
+After a shared memory ID is returned, the next step is to attach it to the address space of a process. This is done with system call shmat(). The use of shmat() is as follows:
+
+ shm_ptr = shmat(
+               int       shm_id,        /* shared memory ID    */
+               char      *ptr,          /* a character pointer */
+               int       flag);         /* access flag         */
+System call shmat() accepts a shared memory ID, shm_id, and attaches the indicated shared memory to the program's address space. The returned value is a pointer of type (void *) to the attached shared memory. Thus, casting is usually necessary. If this call is unsuccessful, the return value is -1. Normally, the second parameter is NULL. If the flag is SHM_RDONLY, this shared memory is attached as a read-only memory; otherwise, it is readable and writable.
