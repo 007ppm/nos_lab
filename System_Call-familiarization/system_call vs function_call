@@ -1,6 +1,0 @@
-System call vs function call
-
-
-System calls provide programs running on the computer an interface to talk with the operating system. When a program needs to ask for a service (for which it does not have permission to do that by itself) from the kernel of the operating system, it uses a system call.
-
-System call is a call to a subroutine built in to the system, while a function call is a call to a subroutine within the program. Unlike function calls, system calls are used when a program needs to perform some task, which it does not have privilege for. System calls are entry points in to the operating system kernel and are not linked to the program (like function calls). Unlike, system calls, function calls are portable. Time overhead of a system call is more than the overhead for a function call because a transition between the user mode and the kernel mode must take place. System calls are executed in kernel address space, while function calls are executed in user address space.
