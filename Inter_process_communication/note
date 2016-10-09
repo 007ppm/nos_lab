@@ -1,3 +1,42 @@
+pipe()      ;  create pipe for communication
+write()     ;  to write to file descriptor write(int fd, const void *buf, count)
+read()      ;  read from the file descriptor read(int fd , pointer , count
+close()     ; close file descriptor
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 1) pipes: (unnamed pipe) 
     They provide unidirectional flow of communication between processes within the same system.  
     In other words, they are half-duplex, that is, data flows in only one direction. A pipe is created by invoking the pipe system call, which creates a pair of file descriptors.
