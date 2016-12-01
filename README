@@ -8,3 +8,17 @@ CS17L2 CUSAT LAB PROGRAMS
 4.IPC :shared_memory
 5.IPC :message_queue
 6.SCHEDULING :round_robin
+
+#c_compilation  
+gcc file_name.c
+./a.out   
+
+socket prgmm
+1.one way   
+2.two way  
+3.broadcast  
+4.public chat   
+
+#java_compilation   
+javac file_name.java   
+java file_name    
